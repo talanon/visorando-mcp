@@ -60,7 +60,10 @@ Prérequis : Node.js 20 ou supérieur.
 npm install
 npm run check
 npm run build
+npm run pack:check
 ```
+
+Le contrôle qualité bloque toute régression sous les seuils suivants : 95 % des instructions, 90 % des branches, 100 % des fonctions et 95 % des lignes. Il combine TypeScript strict, ESLint avec analyse typée stricte, Prettier, Vitest, audit npm, test du paquet réellement installé, CI Node.js 20/22/24 et analyse CodeQL. Dependabot surveille les dépendances npm et GitHub Actions.
 
 Les tests sont déterministes et n’appellent pas Visorando. Une vérification réelle ponctuelle peut être faite avec l’inspecteur MCP :
 

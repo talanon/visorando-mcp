@@ -5,7 +5,7 @@ import type { HikeDetails, HikeSummary } from './types.js';
 const clean = (value: string): string => value.replace(/[\s\u00a0\u2009]+/gu, ' ').trim();
 
 const parseFrenchNumber = (value: string): number | undefined => {
-  const match = clean(value).replace(/[+−–]/gu, '').match(/-?[\d\s]+(?:[,.]\d+)?/u);
+  const match = /-?[\d\s]+(?:[,.]\d+)?/u.exec(clean(value).replace(/[+−–]/gu, ''));
   if (!match) return undefined;
   const parsed = Number(match[0].replace(/\s/gu, '').replace(',', '.'));
   return Number.isFinite(parsed) ? parsed : undefined;
@@ -13,35 +13,41 @@ const parseFrenchNumber = (value: string): number | undefined => {
 
 const parseDuration = (value: string): number | undefined => {
   const normalized = clean(value);
-  const hours = normalized.match(/(\d+)\s*h/u)?.[1];
-  const minutes = normalized.match(/h\s*(\d+)/u)?.[1] ?? normalized.match(/^(\d+)\s*min/u)?.[1];
+  const hours = /(\d+)\s*h/u.exec(normalized)?.[1];
+  const minutes = /h\s*(\d+)/u.exec(normalized)?.[1] ?? /^(\d+)\s*min/u.exec(normalized)?.[1];
   if (!hours && !minutes) return undefined;
   return Number(hours ?? 0) * 60 + Number(minutes ?? 0);
 };
 
-const optional = <T>(value: T | undefined): T | undefined => value;
-
 const scalarText = (value: unknown): string =>
   typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+
+const finiteNumber = (value: unknown): number | undefined => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
 
 export function parseSearchResults(html: string, limit: number): HikeSummary[] {
   const $ = load(html);
   const results: HikeSummary[] = [];
-  $('#randonnees').closest('section').find('li').each((_, element) => {
-    if (results.length >= limit) return;
-    const item = $(element);
-    const anchor = item.find('a[href*="/randonnee-"]').first();
-    const title = clean(anchor.text());
-    const url = anchor.attr('href');
-    if (!title || !url) return;
-    const metadata = clean(item.find('.text-neutral-7').text());
-    const parts = metadata.split('•').map(clean);
-    const result: HikeSummary = { title, url };
-    if (parts[0]) result.activity = parts[0];
-    const distanceKm = parseFrenchNumber(parts[1] ?? '');
-    if (distanceKm !== undefined) result.distanceKm = distanceKm;
-    results.push(result);
-  });
+  $('#randonnees')
+    .closest('section')
+    .find('li')
+    .each((_, element) => {
+      if (results.length >= limit) return;
+      const item = $(element);
+      const anchor = item.find('a[href*="/randonnee-"]').first();
+      const title = clean(anchor.text());
+      const url = anchor.attr('href');
+      if (!title || !url) return;
+      const metadata = clean(item.find('.text-neutral-7').text());
+      const parts = metadata.split('•').map(clean);
+      const result: HikeSummary = { title, url };
+      if (parts[0]) result.activity = parts[0];
+      const distanceKm = parseFrenchNumber(parts[1] ?? '');
+      if (distanceKm !== undefined) result.distanceKm = distanceKm;
+      results.push(result);
+    });
   return results;
 }
 
@@ -56,7 +62,8 @@ export function parseHikeDetails(html: string, canonicalUrl: string): HikeDetail
   });
 
   const title = clean($('h1').first().text());
-  if (!title) throw new Error('La page ne contient pas de fiche de randonnée Visorando reconnaissable.');
+  if (!title)
+    throw new Error('La page ne contient pas de fiche de randonnée Visorando reconnaissable.');
 
   let structured: Record<string, unknown> = {};
   $('script[type="application/ld+json"]').each((_, element) => {
@@ -68,13 +75,22 @@ export function parseHikeDetails(html: string, canonicalUrl: string): HikeDetail
     }
   });
 
-  const geo = typeof structured.geo === 'object' && structured.geo ? structured.geo as Record<string, unknown> : {};
-  const rating = typeof structured.aggregateRating === 'object' && structured.aggregateRating
-    ? structured.aggregateRating as Record<string, unknown>
-    : {};
-  const image = structured.image;
-  const section = $('h2').filter((_, element) => clean($(element).text()) === 'Fiche technique').closest('section');
-  const dates = section.find('time').toArray().map((node: AnyNode) => $(node).attr('datetime'));
+  const geo =
+    typeof structured['geo'] === 'object' && structured['geo']
+      ? (structured['geo'] as Record<string, unknown>)
+      : {};
+  const rating =
+    typeof structured['aggregateRating'] === 'object' && structured['aggregateRating']
+      ? (structured['aggregateRating'] as Record<string, unknown>)
+      : {};
+  const image = structured['image'];
+  const section = $('h2')
+    .filter((_, element) => clean($(element).text()) === 'Fiche technique')
+    .closest('section');
+  const dates = section
+    .find('time')
+    .toArray()
+    .map((node: AnyNode) => $(node).attr('datetime'));
   const id = clean(section.find('.select-all').first().text()) || undefined;
   const coordinates = dataset.get('Départ/Arrivée') ?? '';
   const coordinateValues = [...coordinates.matchAll(/([NSOE])\s*([\d.,]+)/gu)];
@@ -84,10 +100,11 @@ export function parseHikeDetails(html: string, canonicalUrl: string): HikeDetail
     const value = Number(item[2].replace(',', '.'));
     return ['S', 'O'].includes(item[1]) ? -value : value;
   };
-  const numberValue = (key: string): number | undefined => parseFrenchNumber(dataset.get(key) ?? '');
+  const numberValue = (key: string): number | undefined =>
+    parseFrenchNumber(dataset.get(key) ?? '');
   const result: HikeDetails = { title, url: canonicalUrl };
 
-  const values: Array<[keyof HikeDetails, unknown]> = [
+  const values: [keyof HikeDetails, unknown][] = [
     ['id', id],
     ['activity', dataset.get('Activité')],
     ['distanceKm', numberValue('Distance')],
@@ -97,20 +114,29 @@ export function parseHikeDetails(html: string, canonicalUrl: string): HikeDetail
     ['elevationLossM', Math.abs(numberValue('Dénivelé négatif') ?? Number.NaN)],
     ['highestPointM', numberValue('Point haut')],
     ['lowestPointM', numberValue('Point bas')],
-    ['loop', dataset.has('Retour au départ') ? /^oui$/iu.test(dataset.get('Retour au départ') ?? '') : undefined],
+    [
+      'loop',
+      dataset.has('Retour au départ')
+        ? /^oui$/iu.test(dataset.get('Retour au départ') ?? '')
+        : undefined,
+    ],
     ['country', dataset.get('Pays')],
     ['municipality', dataset.get('Commune')],
-    ['latitude', optional(Number(geo.latitude)) || coordinate(0)],
-    ['longitude', optional(Number(geo.longitude)) || coordinate(1)],
+    ['latitude', finiteNumber(geo['latitude']) ?? coordinate(0)],
+    ['longitude', finiteNumber(geo['longitude']) ?? coordinate(1)],
     ['createdAt', dates[0]],
     ['updatedAt', dates[1]],
     ['lastReviewAt', dates[2]],
-    ['rating', parseFrenchNumber(scalarText(rating.ratingValue))],
-    ['reviewCount', parseFrenchNumber(scalarText(rating.reviewCount))],
+    ['rating', parseFrenchNumber(scalarText(rating['ratingValue']))],
+    ['reviewCount', parseFrenchNumber(scalarText(rating['reviewCount']))],
     ['imageUrl', typeof image === 'string' ? image : undefined],
   ];
   for (const [key, value] of values) {
-    if (value !== undefined && value !== '' && !(typeof value === 'number' && !Number.isFinite(value))) {
+    if (
+      value !== undefined &&
+      value !== '' &&
+      !(typeof value === 'number' && !Number.isFinite(value))
+    ) {
       Object.assign(result, { [key]: value });
     }
   }
