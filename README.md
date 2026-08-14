@@ -31,7 +31,19 @@ npm ci
 npm run build
 ```
 
-Configuration Codex/Claude Desktop :
+Configuration Codex (la commande enregistre le chemin absolu dans
+`~/.codex/config.toml`) :
+
+```bash
+codex mcp add visorando -- node "$(pwd)/dist/index.js"
+codex mcp get visorando
+```
+
+Ouvrez ensuite une nouvelle session Codex pour charger le serveur. Vous pouvez
+alors demander, par exemple : « Trouve une randonnée de 10 km autour de
+Guebwiller. »
+
+Configuration Claude Desktop :
 
 ```json
 {
@@ -65,10 +77,19 @@ npm run pack:check
 
 Le contrôle qualité bloque toute régression sous les seuils suivants : 95 % des instructions, 90 % des branches, 100 % des fonctions et 95 % des lignes. Il combine TypeScript strict, ESLint avec analyse typée stricte, Prettier, Vitest, audit npm, test du paquet réellement installé, CI Node.js 20/22/24 et analyse CodeQL. Dependabot surveille les dépendances npm et GitHub Actions.
 
-Les tests sont déterministes et n’appellent pas Visorando. Une vérification réelle ponctuelle peut être faite avec l’inspecteur MCP :
+Les tests sont déterministes et n’appellent pas Visorando. Une vérification
+réelle ponctuelle peut être faite avec l’Inspector MCP v2. Le mode doit être
+indiqué avant la commande du serveur :
 
 ```bash
-npx @modelcontextprotocol/inspector node dist/index.js
+npx --yes @modelcontextprotocol/inspector@latest --web node dist/index.js
+```
+
+Pour vérifier la liste des outils sans interface graphique :
+
+```bash
+npx --yes @modelcontextprotocol/inspector@latest --cli \
+  node dist/index.js --method tools/list
 ```
 
 ## Limites
