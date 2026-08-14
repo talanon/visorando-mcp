@@ -25,3 +25,7 @@ export interface HikeDetails extends HikeSummary {
   reviewCount?: number;
   imageUrl?: string;
 }
+
+export interface HikeMatch extends HikeDetails {
+  distanceDifferenceKm: number;
+}

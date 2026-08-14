@@ -5,12 +5,19 @@ Serveur [Model Context Protocol](https://modelcontextprotocol.io/) non officiel 
 ## Fonctionnalités
 
 - `search_hikes` — recherche par lieu, titre, mot-clé ou numéro ;
+- `find_hikes` — recherche autour d’un lieu, filtrage par distance cible et classement par proximité ;
 - `get_hike` — distance, durée, difficulté, dénivelé, boucle, départ, note et dates ;
 - `compare_hikes` — comparaison parallèle de 2 à 5 fiches ;
 - ressource `visorando://legal` — périmètre légal et technique ;
 - prompt `choose_a_hike` — workflow de sélection assistée ;
 - cache mémoire, délai maximal réseau, validation stricte des URL et protection SSRF ;
 - zéro identifiant Visorando requis.
+
+Un assistant connecté au serveur peut donc traiter directement une demande naturelle comme :
+
+> Trouve une randonnée de 10 km autour de Guebwiller.
+
+Il appellera `find_hikes` avec `location: "Guebwiller"` et `targetDistanceKm: 10`. La tolérance par défaut est de ±2 km et peut être modifiée.
 
 > [!IMPORTANT]
 > Visorando précise que les descriptions et traces GPS restent la propriété de leurs auteurs. Ce serveur ne les copie pas et ne contourne aucun téléchargement. Il expose uniquement des métadonnées publiques et renvoie vers la fiche source. Ce projet n’est ni affilié à ni approuvé par Visorando.
@@ -53,7 +60,10 @@ Prérequis : Node.js 20 ou supérieur.
 npm install
 npm run check
 npm run build
+npm run pack:check
 ```
+
+Le contrôle qualité bloque toute régression sous les seuils suivants : 95 % des instructions, 90 % des branches, 100 % des fonctions et 95 % des lignes. Il combine TypeScript strict, ESLint avec analyse typée stricte, Prettier, Vitest, audit npm, test du paquet réellement installé, CI Node.js 20/22/24 et analyse CodeQL. Dependabot surveille les dépendances npm et GitHub Actions.
 
 Les tests sont déterministes et n’appellent pas Visorando. Une vérification réelle ponctuelle peut être faite avec l’inspecteur MCP :
 

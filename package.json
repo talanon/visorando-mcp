@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "description": "Serveur MCP non officiel pour rechercher et consulter les métadonnées publiques de randonnées Visorando.",
   "type": "module",
+  "main": "dist/api.js",
+  "types": "dist/api.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/api.d.ts",
+      "import": "./dist/api.js"
+    }
+  },
   "bin": {
     "visorando-mcp": "dist/index.js"
   },
@@ -13,10 +21,14 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "check": "npm run lint && npm run typecheck && npm test",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
+    "pack:check": "node scripts/smoke-package.mjs",
     "start": "node dist/index.js",
     "test": "vitest run --coverage",
+    "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "engines": {
@@ -40,6 +52,7 @@
     "@types/node": "^24.10.1",
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^9.39.1",
+    "prettier": "^3.9.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.1",
     "vitest": "^4.0.18"
