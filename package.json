@@ -1,7 +1,7 @@
 {
   "name": "visorando-mcp",
   "version": "1.0.0",
-  "description": "Serveur MCP non officiel pour rechercher et consulter les métadonnées publiques de randonnées Visorando.",
+  "description": "Serveur MCP pour rechercher des parcours Visorando et préparer nutrition, hydratation et accès trail.",
   "type": "module",
   "main": "dist/api.js",
   "types": "dist/api.d.ts",
@@ -16,6 +16,9 @@
   },
   "files": [
     "dist",
+    ".codex-plugin",
+    ".mcp.json",
+    "skills",
     "LICENSE",
     "README.md"
   ],
@@ -38,6 +41,9 @@
     "mcp",
     "model-context-protocol",
     "visorando",
+    "trail-running",
+    "nutrition",
+    "hydration",
     "hiking",
     "randonnée"
   ],

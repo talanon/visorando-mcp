@@ -1,0 +1,9 @@
+interface:
+  display_name: 'Plan nutrition et eau trail'
+  short_description: 'Estime glucides, eau et ravitaillement'
+  default_prompt: 'Utilise $plan-trail-nutrition pour estimer les glucides et l’eau nécessaires à mon trail.'
+dependencies:
+  tools:
+    - type: 'mcp'
+      value: 'visorando'
+      description: 'Outils MCP de préparation trail'

@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Trouver et préparer une randonnée'
+  short_description: 'Recherche un parcours et prépare sa logistique'
+  default_prompt: 'Utilise $find-visorando-hikes pour proposer une sortie et préciser automatiquement le stationnement, l’eau et la nourriture.'

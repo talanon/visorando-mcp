@@ -1,0 +1,32 @@
+{
+  "name": "visorando-mcp",
+  "version": "1.0.0+codex.20260814205911",
+  "description": "Recherche des itin\u00e9raires Visorando et pr\u00e9pare nutrition, hydratation et acc\u00e8s pour le trail.",
+  "author": {
+    "name": "Leo Meyer",
+    "url": "https://github.com/talanon"
+  },
+  "homepage": "https://github.com/talanon/visorando-mcp",
+  "repository": "https://github.com/talanon/visorando-mcp",
+  "license": "MIT",
+  "keywords": ["visorando", "trail", "hiking", "nutrition", "hydratation", "mcp"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Visorando",
+    "shortDescription": "Pr\u00e9parez parcours, carburant, eau et acc\u00e8s trail.",
+    "longDescription": "Recherchez et comparez des parcours Visorando, estimez glucides et eau selon votre dur\u00e9e, puis trouvez parkings et transports proches du d\u00e9part sans reproduire les descriptions ni les traces prot\u00e9g\u00e9es.",
+    "developerName": "Leo Meyer",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "websiteURL": "https://github.com/talanon/visorando-mcp",
+    "defaultPrompt": [
+      "Trouve une randonn\u00e9e de 10 km autour de Guebwiller.",
+      "Compare deux randonn\u00e9es Visorando.",
+      "Cherche des randonn\u00e9es autour de Colmar.",
+      "Pr\u00e9pare cette sortie trail avec glucides, eau, parking et transports.",
+      "Combien de gels et de flasques dois-je emporter pour 4 heures ?"
+    ],
+    "brandColor": "#2F6B3B"
+  },
+  "mcpServers": "./.mcp.json"
+}

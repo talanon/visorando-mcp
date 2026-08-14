@@ -1,0 +1,9 @@
+interface:
+  display_name: 'Préparer une sortie trail'
+  short_description: 'Planifie parcours, nutrition, eau et accès'
+  default_prompt: 'Utilise $prepare-trail-outing pour proposer et préparer entièrement cette sortie trail.'
+dependencies:
+  tools:
+    - type: 'mcp'
+      value: 'visorando'
+      description: 'Recherche et préparation complète d’une sortie trail'

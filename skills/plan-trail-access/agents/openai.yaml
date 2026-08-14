@@ -1,0 +1,9 @@
+interface:
+  display_name: 'Accès au départ d’un trail'
+  short_description: 'Trouve parkings et transports proches'
+  default_prompt: 'Utilise $plan-trail-access pour trouver où me garer ou arriver en transport près du départ.'
+dependencies:
+  tools:
+    - type: 'mcp'
+      value: 'visorando'
+      description: 'Recherche des accès autour d’une fiche Visorando'

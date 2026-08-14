@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     coverage: {
       provider: 'v8',
-      include: ['src/{client,parser,server}.ts'],
+      include: ['src/{access,client,parser,planner,server}.ts'],
       reporter: ['text', 'json-summary'],
       thresholds: {
         statements: 95,

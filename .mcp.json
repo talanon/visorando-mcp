@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "visorando": {
+      "command": "node",
+      "args": ["/Users/leomeyer/www/visorando-mcp/dist/index.js"]
+    }
+  }
+}
