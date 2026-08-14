@@ -1,0 +1,47 @@
+{
+  "name": "visorando-mcp",
+  "version": "1.0.0",
+  "description": "Serveur MCP non officiel pour rechercher et consulter les métadonnées publiques de randonnées Visorando.",
+  "type": "module",
+  "bin": {
+    "visorando-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "check": "npm run lint && npm run typecheck && npm test",
+    "lint": "eslint .",
+    "start": "node dist/index.js",
+    "test": "vitest run --coverage",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "visorando",
+    "hiking",
+    "randonnée"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "cheerio": "^1.2.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.1",
+    "vitest": "^4.0.18"
+  }
+}
