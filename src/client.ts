@@ -1,5 +1,5 @@
 import { parseHikeDetails, parseSearchResults } from './parser.js';
-import type { HikeDetails, HikeSummary } from './types.js';
+import type { HikeDetails, HikeMatch, HikeSummary } from './types.js';
 
 const BASE_URL = 'https://www.visorando.com';
 const DEFAULT_TIMEOUT_MS = 10_000;
@@ -37,7 +37,35 @@ export class VisorandoClient {
     url.searchParams.set('task', 'searchRandonnee');
     url.searchParams.set('mainSearchInput', query);
     const html = await this.get(url);
-    return parseSearchResults(html, limit);
+    return parseSearchResults(html, Math.min(100, Math.max(1, limit)));
+  }
+
+  async findHikes(
+    location: string,
+    targetDistanceKm: number,
+    toleranceKm = 2,
+    limit = 5,
+  ): Promise<HikeMatch[]> {
+    const candidates = (await this.searchHikes(location, 100))
+      .filter((hike): hike is HikeSummary & { distanceKm: number } => hike.distanceKm !== undefined)
+      .filter((hike) => Math.abs(hike.distanceKm - targetDistanceKm) <= toleranceKm)
+      .sort((left, right) =>
+        Math.abs(left.distanceKm - targetDistanceKm) - Math.abs(right.distanceKm - targetDistanceKm),
+      )
+      .slice(0, limit);
+
+    return Promise.all(candidates.map(async (candidate) => {
+      let details: HikeDetails = candidate;
+      try {
+        details = await this.getHike(candidate.url);
+      } catch {
+        // Un résultat de recherche reste utile si une fiche individuelle est temporairement indisponible.
+      }
+      return {
+        ...details,
+        distanceDifferenceKm: Number(Math.abs(candidate.distanceKm - targetDistanceKm).toFixed(2)),
+      };
+    }));
   }
 
   async getHike(reference: string): Promise<HikeDetails> {

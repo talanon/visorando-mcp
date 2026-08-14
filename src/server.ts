@@ -38,6 +38,20 @@ export function createServer(client = new VisorandoClient()): McpServer {
     catch (error) { return errorResult(error); }
   });
 
+  server.registerTool('find_hikes', {
+    title: 'Trouver une randonnée selon des critères',
+    description: 'Trouve et classe des randonnées autour d’un lieu selon une distance cible. Exemple : « trouve une randonnée de 10 km autour de Guebwiller » devient location="Guebwiller", targetDistanceKm=10.',
+    inputSchema: {
+      location: z.string().trim().min(2).max(120).describe('Ville, commune ou lieu autour duquel chercher'),
+      targetDistanceKm: z.number().positive().max(500).describe('Distance souhaitée en kilomètres'),
+      toleranceKm: z.number().nonnegative().max(100).default(2).describe('Écart maximal accepté autour de la distance cible'),
+      limit: z.number().int().min(1).max(10).default(5).describe('Nombre maximal de propositions'),
+    },
+  }, async ({ location, targetDistanceKm, toleranceKm, limit }) => {
+    try { return toToolResult(await client.findHikes(location, targetDistanceKm, toleranceKm, limit)); }
+    catch (error) { return errorResult(error); }
+  });
+
   server.registerTool('compare_hikes', {
     title: 'Comparer des randonnées Visorando',
     description: 'Compare les métadonnées de deux à cinq fiches publiques.',
@@ -69,7 +83,7 @@ export function createServer(client = new VisorandoClient()): McpServer {
     },
   }, ({ place, preferences }) => ({ messages: [{
     role: 'user',
-    content: { type: 'text', text: `Recherche des randonnées Visorando autour de ${place}. ${preferences ?? ''} Utilise search_hikes, consulte les meilleures fiches avec get_hike, compare leurs données et rappelle de vérifier les conditions locales avant le départ.` },
+    content: { type: 'text', text: `Recherche des randonnées Visorando autour de ${place}. ${preferences ?? ''} Utilise find_hikes dès qu’une distance est demandée ; sinon utilise search_hikes. Consulte les meilleures fiches avec get_hike, compare leurs données et rappelle de vérifier les conditions locales avant le départ.` },
   }] }));
 
   return server;
